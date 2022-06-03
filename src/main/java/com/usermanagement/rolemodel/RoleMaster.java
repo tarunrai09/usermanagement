@@ -20,4 +20,5 @@ public class RoleMaster {
 	@Column(name = "ROLE_TYPE")
 	private String roleType;
 
+	
 }
