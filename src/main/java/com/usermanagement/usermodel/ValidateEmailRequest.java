@@ -5,6 +5,7 @@ import lombok.Data;
 @Data
 public class ValidateEmailRequest {
 
+	
 	private String emailId;
 
 	private Integer userId;

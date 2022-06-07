@@ -7,6 +7,7 @@ import lombok.Data;
 @Data
 public class RoleTypeUpdateResponseDTO {
 	
+	
 	UserType userTypeModel;
 	
 	String message;

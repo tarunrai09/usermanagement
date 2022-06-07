@@ -10,6 +10,7 @@ import com.usermanagement.usermodel.UserTypeRoleType;
 @Repository
 public interface UserTypeRoleTypeMapRepository extends JpaRepository<UserTypeRoleType, Integer> {
 
+	
 	List<UserTypeRoleType>  findByUserType(String userType);
 	
 	List<Integer> findByUserId(Integer userId);

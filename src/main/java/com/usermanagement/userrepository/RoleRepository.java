@@ -6,6 +6,7 @@ import com.usermanagement.usermodel.RoleTypeDetails;
 
 public interface RoleRepository extends JpaRepository<RoleTypeDetails, Integer>{
 		
+	
 	Boolean existsByRoleType(String roleType);
 	
 	RoleTypeDetails findByRoleType(String roleType);

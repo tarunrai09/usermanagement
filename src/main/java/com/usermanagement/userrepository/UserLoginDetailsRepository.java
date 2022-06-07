@@ -12,6 +12,7 @@ import com.usermanagement.usermodel.UserLoginDetails;
 @Repository
 public interface UserLoginDetailsRepository extends JpaRepository<UserLoginDetails, Integer> {
 
+	
 	UserLoginDetails findByUserId(Integer userId);
 	
 	UserLoginDetails findByLoginId(String loginId);

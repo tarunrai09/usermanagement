@@ -30,6 +30,7 @@ import com.usermanagement.userservice.UserLoginService;
 @RequestMapping(name = "/sbi/userLogin")
 public class UserLoginController {
 
+	
 	@Autowired
 	UserLoginService loginService;
 

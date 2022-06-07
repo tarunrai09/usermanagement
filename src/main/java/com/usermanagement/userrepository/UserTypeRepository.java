@@ -10,6 +10,7 @@ import java.util.List;
 @Repository
 public interface UserTypeRepository extends JpaRepository<UserType, String> {
 
+	
 	List<UserType> findByUserType(String userType);
 	
 	List<UserType> findByUserTypeBelongs(String userTypeBelongs);

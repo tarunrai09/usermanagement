@@ -5,6 +5,7 @@ import lombok.Data;
 @Data
 public class UpdateRoleRequestDTO {
 	
+	
 	Integer userId;
 	
 	String userType;

@@ -20,6 +20,7 @@ import org.springframework.web.client.RestTemplate;
 @Configuration
 public class CustomeRestTemplate {
 
+	
 	@Bean
 	public RestTemplate restTemplate() throws KeyManagementException, NoSuchAlgorithmException {
 

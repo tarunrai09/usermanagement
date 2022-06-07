@@ -12,6 +12,7 @@ import lombok.Data;
 @Data
 public class UserType {
 
+	
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	@Column(name = "USER_TYPE_ID")

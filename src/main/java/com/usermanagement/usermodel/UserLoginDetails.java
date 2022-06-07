@@ -12,6 +12,7 @@ import lombok.Data;
 @Data
 public class UserLoginDetails {
 
+	
 	@Id
 	@Column(name = "USER_ID")
 	private Integer userId;

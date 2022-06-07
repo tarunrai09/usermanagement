@@ -9,4 +9,5 @@ import com.usermanagement.usermodel.UserSystemDetails;
 @Repository
 public interface UserSystemRepository extends JpaRepository<UserSystemDetails, Integer>{
 
+	
 }

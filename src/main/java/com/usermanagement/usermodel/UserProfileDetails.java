@@ -12,6 +12,7 @@ import lombok.Data;
 @Data
 public class UserProfileDetails {
 
+	
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	@Column(name = "USER_ID")

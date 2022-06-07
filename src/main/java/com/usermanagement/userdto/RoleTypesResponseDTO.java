@@ -9,6 +9,7 @@ import lombok.Data;
 @Data
 public class RoleTypesResponseDTO {
 	
+	
 	List<UserType> userTypeModel;
 	String message;
 	

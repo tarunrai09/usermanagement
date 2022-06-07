@@ -9,6 +9,7 @@ import lombok.Data;
 @Data
 public class UserTypeRoleType {
 	
+	
 	private String roleType;
 	
 	private String userType;

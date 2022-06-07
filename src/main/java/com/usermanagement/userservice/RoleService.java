@@ -22,6 +22,7 @@ import com.usermanagement.userrepository.UserTypeRoleTypeMapRepository;
 @Service
 public class RoleService {
 
+	
 	@Autowired
 	RoleRepository roleRepository;
 

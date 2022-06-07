@@ -8,6 +8,7 @@ import com.usermanagement.usermodel.UserProfileDetails;
 @Repository
 public interface UserProfileRepository extends JpaRepository<UserProfileDetails, Integer> {
 
+	
 	/*
 	 * @Modifying
 	 * 

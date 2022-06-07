@@ -12,6 +12,7 @@ import com.usermanagement.userrepository.UserTypeRepository;
 @Service
 public class UserTypeService {
 
+	
 	@Autowired
 	UserTypeRepository userTypeRepository;
 
