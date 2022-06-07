@@ -2,14 +2,14 @@ package com.usermanagement.userdto;
 
 import java.util.List;
 
-import com.usermanagement.usermodel.UserTypeModel;
+import com.usermanagement.usermodel.UserType;
 
 import lombok.Data;
 
 @Data
 public class RoleTypesResponseDTO {
 	
-	List<UserTypeModel> userTypeModel;
+	List<UserType> userTypeModel;
 	String message;
 	
 }

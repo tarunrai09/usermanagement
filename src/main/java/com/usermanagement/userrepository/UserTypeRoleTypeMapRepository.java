@@ -5,12 +5,12 @@ import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import com.usermanagement.usermodel.UserRoleMap;
+import com.usermanagement.usermodel.UserTypeRoleType;
 
 @Repository
-public interface UserTypeRoleTypeMapRepository extends JpaRepository<UserRoleMap, Integer> {
+public interface UserTypeRoleTypeMapRepository extends JpaRepository<UserTypeRoleType, Integer> {
 
-	List<UserRoleMap>  findByUserType(String userType);
+	List<UserTypeRoleType>  findByUserType(String userType);
 	
 	List<Integer> findByUserId(Integer userId);
 

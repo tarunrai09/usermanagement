@@ -1,13 +1,13 @@
 package com.usermanagement.userdto;
 
-import com.usermanagement.usermodel.UserTypeModel;
+import com.usermanagement.usermodel.UserType;
 
 import lombok.Data;
 
 @Data
 public class RoleTypeUpdateResponseDTO {
 	
-	UserTypeModel userTypeModel;
+	UserType userTypeModel;
 	
 	String message;
 	

@@ -17,11 +17,11 @@ import com.usermanagement.userdto.RoleResponseDTO;
 import com.usermanagement.userdto.RoleTypeUpdateResponseDTO;
 import com.usermanagement.userdto.RoleTypesResponseDTO;
 import com.usermanagement.userdto.UpdateRoleRequestDTO;
-import com.usermanagement.usermodel.UserRoleMap;
+import com.usermanagement.usermodel.UserTypeRoleType;
 import com.usermanagement.userservice.RoleService;
 
 @RestController
-@CrossOrigin(origins = "http://localhost:8080")
+@CrossOrigin(origins = "*")
 @RequestMapping(name = "/sbi/role")
 public class RoleController {
 
@@ -44,7 +44,7 @@ public class RoleController {
 	}
 	
 	@GetMapping(value = "/getUserRoleByUserType/{userTYpe}")
-	public List<UserRoleMap> getUserRoleByUserType(@PathVariable String userTYpe) {
+	public List<UserTypeRoleType> getUserRoleByUserType(@PathVariable String userTYpe) {
 		return roleService.getUserRoleByUserType(userTYpe);
 	}
 

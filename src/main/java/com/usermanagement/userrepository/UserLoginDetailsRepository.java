@@ -18,6 +18,6 @@ public interface UserLoginDetailsRepository extends JpaRepository<UserLoginDetai
 	
 	@Transactional
 	@Modifying
-	@Query(nativeQuery = true,value="Update USER_LOGIN_DETAILS c set c.IS_FIRST_LOGIN=:isFirstLogin , c.password=:password where c.login_Id=:loginId")
+	@Query(nativeQuery = true,value="Update COM_IAM_USER_LOGIN_DETAILS  set IS_FIRST_LOGIN=:isFirstLogin , password=:password where login_Id=:loginId")
 	void updateByLoginId(String loginId,String isFirstLogin,String password);
 }

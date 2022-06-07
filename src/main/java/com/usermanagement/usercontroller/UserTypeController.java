@@ -11,11 +11,11 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.usermanagement.usermodel.UserTypeModel;
+import com.usermanagement.usermodel.UserType;
 import com.usermanagement.userservice.UserTypeService;
 
 @RestController
-@CrossOrigin(origins = "http://localhost:8080")
+@CrossOrigin(origins = "*")
 @RequestMapping(value="/sbi/userType")
 public class UserTypeController {
 
@@ -23,13 +23,13 @@ public class UserTypeController {
 	UserTypeService userTypeService;
 
 	@PostMapping(name = "/saveUserType", consumes = "application/json", produces = "application/json")
-	public void saveUserType(@RequestBody UserTypeModel request) {
+	public void saveUserType(@RequestBody UserType request) {
 
 		userTypeService.saveSUerType(request);
 	}
 
 	@GetMapping(name = "/getUserType/{userType}", consumes = "application/json", produces = "application/json")
-	public List<UserTypeModel> saveUserType(@PathVariable String userType) {
+	public List<UserType> saveUserType(@PathVariable String userType) {
 
 		return userTypeService.getUserTypeBasedOnUserBelongs(userType);
 

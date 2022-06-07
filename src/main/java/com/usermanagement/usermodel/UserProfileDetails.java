@@ -13,7 +13,7 @@ import lombok.Data;
 public class UserProfileDetails {
 
 	@Id
-	@GeneratedValue(strategy = GenerationType.TABLE)
+	@GeneratedValue(strategy = GenerationType.AUTO)
 	@Column(name = "USER_ID")
 	private Integer userId;
 	@Column(name = "SHORT_NAME")

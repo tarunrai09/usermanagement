@@ -13,16 +13,20 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.usermanagement.userdto.PasswordRequest;
+import com.usermanagement.userdto.ResetPasswordRes;
+import com.usermanagement.userdto.UserCreationRes;
+import com.usermanagement.userdto.UserExistRes;
 import com.usermanagement.userdto.UserLoginResponse;
 import com.usermanagement.userdto.UserProfileDetailsDTO;
 import com.usermanagement.usermodel.UserLoginRequest;
-import com.usermanagement.usermodel.UserRoleMap;
+import com.usermanagement.usermodel.UserTypeRoleType;
 import com.usermanagement.usermodel.UserSystemLogin;
 import com.usermanagement.usermodel.ValidateEmailRequest;
 import com.usermanagement.userservice.UserLoginService;
 
 @RestController
-@CrossOrigin(origins = "http://localhost:8080")
+@CrossOrigin(origins = "*")
 @RequestMapping(name = "/sbi/userLogin")
 public class UserLoginController {
 
@@ -35,12 +39,22 @@ public class UserLoginController {
 		return loginService.userLogin(request);
 	}
 
+	@PostMapping(value = "/resetPassword")
+	public ResetPasswordRes resetPassword(@RequestBody PasswordRequest request) {
+		return loginService.resetPasswordForFirstLogin(request);
+	}
+
+	@GetMapping(value = "/checkLoginIdExist/{loginId}")
+	public UserExistRes checkUserExist(@PathVariable String loginId) {
+
+		return loginService.checkLoginIdExist(loginId);
+	}
+
 	@GetMapping(value = "/getUserTypesByUserId/{userId}", consumes = "application/json", produces = "application/json")
-	public List<UserRoleMap> getUserTypesByUserId(@PathVariable Integer userId) {
+	public List<UserTypeRoleType> getUserTypesByUserId(@PathVariable Integer userId) {
 
 		return loginService.getUserTypesByUserId(userId);
 	}
-
 
 	@PostMapping(value = "/sendEmailForCreation", consumes = "application/json", produces = "application/json")
 	public void sendEmail() {
@@ -62,14 +76,14 @@ public class UserLoginController {
 	}
 
 	@PostMapping(value = "/saveInternalUser", consumes = "application/json", produces = "application/json")
-	public String saveInternalUser(@RequestBody UserProfileDetailsDTO request) {
+	public UserCreationRes saveInternalUser(@RequestBody UserProfileDetailsDTO request) {
 
 		return loginService.saveUserDetails(request);
 
 	}
 
 	@PostMapping(value = "/saveExternalUser", consumes = "application/json", produces = "application/json")
-	public String saveExternalUser(@RequestBody UserProfileDetailsDTO request) {
+	public UserCreationRes saveExternalUser(@RequestBody UserProfileDetailsDTO request) {
 
 		return loginService.saveUserDetails(request);
 

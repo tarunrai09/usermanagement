@@ -21,5 +21,7 @@ public interface UserProfileRepository extends JpaRepository<UserProfileDetails,
 	UserProfileDetails findByMobileNo(String mobileNo);
 	
 	UserProfileDetails findByUserId(Integer userId);
+	
+	UserProfileDetails findByLoginId(String loginId);
 
 }

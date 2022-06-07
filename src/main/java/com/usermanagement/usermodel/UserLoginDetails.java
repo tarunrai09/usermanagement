@@ -15,16 +15,16 @@ public class UserLoginDetails {
 	@Id
 	@Column(name = "USER_ID")
 	private Integer userId;
-	
+
 	@Column(name = "PASSWORD")
 	private String password;
-	
+
 	@Column(name = "CURRENT_STATUS")
 	private String currentStatus;
 
 	@Column(name = "LOGIN_ID")
 	private String loginId;
-	
+
 	@Column(name = "UPDATE_TIME")
 	private LocalDateTime updateTime;
 

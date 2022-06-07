@@ -2,12 +2,12 @@ package com.usermanagement.userrepository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import com.usermanagement.usermodel.RoleMaster;
+import com.usermanagement.usermodel.RoleTypeDetails;
 
-public interface RoleRepository extends JpaRepository<RoleMaster, Integer>{
+public interface RoleRepository extends JpaRepository<RoleTypeDetails, Integer>{
 		
 	Boolean existsByRoleType(String roleType);
 	
-	RoleMaster findByRoleType(String roleType);
+	RoleTypeDetails findByRoleType(String roleType);
 	
 }

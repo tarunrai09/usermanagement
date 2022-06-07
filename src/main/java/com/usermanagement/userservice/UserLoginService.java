@@ -20,19 +20,22 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
 
 import com.usermanagement.userdto.PasswordRequest;
+import com.usermanagement.userdto.ResetPasswordRes;
+import com.usermanagement.userdto.UserCreationRes;
+import com.usermanagement.userdto.UserExistRes;
 import com.usermanagement.userdto.UserLoginResponse;
 import com.usermanagement.userdto.UserProfileDetailsDTO;
 import com.usermanagement.usermodel.UserLoginDetails;
 import com.usermanagement.usermodel.UserLoginRequest;
 import com.usermanagement.usermodel.UserProfileDetails;
-import com.usermanagement.usermodel.UserRoleMap;
 import com.usermanagement.usermodel.UserSystemDetails;
 import com.usermanagement.usermodel.UserSystemLogin;
+import com.usermanagement.usermodel.UserTypeRoleType;
 import com.usermanagement.usermodel.ValidateEmailRequest;
 import com.usermanagement.userrepository.UserLoginDetailsRepository;
 import com.usermanagement.userrepository.UserProfileRepository;
-import com.usermanagement.userrepository.UserTypeRoleTypeMapRepository;
 import com.usermanagement.userrepository.UserSystemRepository;
+import com.usermanagement.userrepository.UserTypeRoleTypeMapRepository;
 
 @Service
 public class UserLoginService {
@@ -52,28 +55,31 @@ public class UserLoginService {
 	@Autowired
 	UserTypeRoleTypeMapRepository roleTypeMapRepository;
 
+	@Autowired
+	UserTypeRoleTypeMapRepository userTypeRoleTypeMapRepository;
+
 	public static Cipher cipher;
 
 	@Value("${spring.mail.username}")
 	String userName;
 
-	public List<com.usermanagement.usermodel.UserRoleMap> getUserTypesByUserId(Integer userId) {
+	public List<UserTypeRoleType> getUserTypesByUserId(Integer userId) {
 
 		UserProfileDetails res = userProfileRepository.findByUserId(userId);
 
-		List<com.usermanagement.usermodel.UserRoleMap> res1 = roleTypeMapRepository.findByUserType(res.getEntityId());
+		List<UserTypeRoleType> res1 = roleTypeMapRepository.findByUserType(res.getEntityId());
 
 		return res1;
 	}
 
-	
 	public UserLoginResponse userLogin(UserLoginRequest request) {
 
 		UserLoginResponse response = new UserLoginResponse();
 
 		UserLoginDetails res = userLoginDetails.findByLoginId(request.getLoginId());
-		if (!res.getIsFirstLogin().equalsIgnoreCase("Y")) {
-			if (!ObjectUtils.isEmpty(res)) {
+
+		if (!ObjectUtils.isEmpty(res)) {
+			if (!res.getIsFirstLogin().equalsIgnoreCase("Y")) {
 				if (request.getPassword().equals(res.getPassword())) {
 
 					response.setStatus("Success");
@@ -81,29 +87,38 @@ public class UserLoginService {
 					return response;
 				} else {
 
-					response.setStatus("Password entered is incorrect");
+					response.setErrorDesc("Password entered is incorrect");
+					response.setStatus("Failure");
 					return response;
 				}
 			} else {
-
-				response.setStatus("UserId does not exist in SCF.");
-				return response;
+				if (request.getPassword().equals(res.getPassword())) {
+					response.setIsFirstLogin("Y");
+					response.setStatus("Success");
+					return response;
+				} else {
+					response.setErrorDesc("Password entered is incorrect");
+					response.setStatus("Failure");
+					return response;
+				}
 			}
 
 		} else {
 
-			response.setIsFirstLogin("Y");
-			response.setStatus("Success");
+			response.setErrorDesc("UserId does not exist in SCF.");
+			response.setStatus("Failure");
 			return response;
 		}
 
 	}
 
-	public String resetPasswordForFirstLogin(PasswordRequest request) {
+	public ResetPasswordRes resetPasswordForFirstLogin(PasswordRequest request) {
 
+		ResetPasswordRes res = new ResetPasswordRes();
 		userLoginDetails.updateByLoginId(request.getLoginId(), "N", request.getPassword());
 
-		return "Success";
+		res.setStatus("Status");
+		return res;
 
 	}
 
@@ -141,8 +156,9 @@ public class UserLoginService {
 		// return new String(Base64.getDecoder().decode(res.getPassword()));
 	}
 
-	public String saveUserDetails(UserProfileDetailsDTO request) {
+	public UserCreationRes saveUserDetails(UserProfileDetailsDTO request) {
 
+		UserCreationRes response1 = new UserCreationRes();
 		/*
 		 * To be done :- SYNC CBS to SCF Data UserSystem class needs to be filled after
 		 * calling cbs
@@ -174,12 +190,6 @@ public class UserLoginService {
 			}
 			profileReq.setUserRole(request.getUserRole());
 			UserProfileDetails profileRes = userProfileRepository.save(profileReq);
-			
-			UserRoleMap roleMapReq = new UserRoleMap();
-			roleMapReq.setUserId(profileRes.getUserId());
-			roleMapReq.setRoleType(profileRes.getUserRole());
-			roleMapReq.setUserType(profileRes.getEntityId());
-			roleTypeMapRepository.save(roleMapReq);
 
 			UserLoginDetails loginReq = new UserLoginDetails();
 			loginReq.setUserId(profileRes.getUserId());
@@ -191,15 +201,38 @@ public class UserLoginService {
 			loginReq.setIsFirstLogin("Y");
 			userLoginDetails.save(loginReq);
 
-			sendEmail(profileRes.getEmailId(), profileRes.getLoginId(), new String(profileRes.getPassword()));
+			UserProfileDetails userProfileDetails = userProfileRepository.findByLoginId(request.getLoginId());
+			UserTypeRoleType userTypeRoleType = new UserTypeRoleType();
+			userTypeRoleType.setRoleType(userProfileDetails.getUserRole());
+			userTypeRoleType.setUserType(userProfileDetails.getEntityId());
+			userTypeRoleType.setUserId(userProfileDetails.getUserId());
+			userTypeRoleTypeMapRepository.save(userTypeRoleType);
+
+			try {
+				sendEmail(profileRes.getEmailId(), profileRes.getLoginId(), new String(profileRes.getPassword()));
+			} catch (Exception e) {
+
+				userProfileRepository.deleteById(profileRes.getUserId());
+
+				userLoginDetails.deleteById(profileRes.getUserId());
+
+				userTypeRoleTypeMapRepository.deleteById(profileRes.getUserId());
+				response1.setStatus("Failure");
+				response1.setErrorDesc(e.getLocalizedMessage());
+				return response1;
+			}
 			String response = "User Created in SCF " + "\n\nLogin Id " + profileRes.getLoginId() + "\n\nPassword "
 					+ new String(profileRes.getPassword());
 
-			return response;
+			response1.setMessage(response);
+			response1.setStatus("Status");
+			return response1;
 			/*
 			 * } return "Email Id already exist.";
 			 */} else {
-			return "Email Id  or Mobile No already exist.";
+			response1.setStatus("Failure");
+			response1.setErrorDesc("Email Id  or Mobile No already exist.");
+			return response1;
 		}
 
 		/*
@@ -207,6 +240,22 @@ public class UserLoginService {
 		 * BranchCode
 		 */
 
+	}
+
+	public UserExistRes checkLoginIdExist(String loginId) {
+
+		UserExistRes res = new UserExistRes();
+
+		UserProfileDetails userProfile = userProfileRepository.findByLoginId(loginId);
+		if (userProfile == null) {
+
+			res.setIsExist("Y");
+			return res;
+		} else {
+
+			res.setIsExist("N");
+			return res;
+		}
 	}
 
 	@Transactional
@@ -288,10 +337,15 @@ public class UserLoginService {
 
 		SimpleMailMessage simplemailMessage = new SimpleMailMessage();
 
+		String res = "Welcome to SBI!" + "\n\n Your user ID is created on the platform."
+				+ "\n\n We request you to click on the link provided at the end of this email"
+				+ " to complete the onbaording process." + "http://localhost:4200/login";
 		simplemailMessage.setFrom(userName);
 		simplemailMessage.setTo(emailId);
-		simplemailMessage.setText("Login user created in SCF system! + " + "\n\nLoginId: " + loginId + "\n\nPassword: " + password);
-		simplemailMessage.setSubject("User creation successful");
+		simplemailMessage.setText(res + "\n\nLoginId: " + loginId + "\nPassword: " + password
+				+ "\n For any assistance and clarification please write to us on customer.service@sbi.com"
+				+ "\n\n Promissing our best spport." + "\n Warm Regards" + "\n SBI SCF Team");
+		simplemailMessage.setSubject("SBI your partner in Growing Business: Your User ID created successful");
 
 		javaMailSender.send(simplemailMessage);
 	}

@@ -10,13 +10,14 @@ import com.usermanagement.userdto.RoleResponseDTO;
 import com.usermanagement.userdto.RoleTypeUpdateResponseDTO;
 import com.usermanagement.userdto.RoleTypesResponseDTO;
 import com.usermanagement.userdto.UpdateRoleRequestDTO;
-import com.usermanagement.usermodel.RoleMaster;
+import com.usermanagement.usermodel.RoleTypeDetails;
 import com.usermanagement.usermodel.UserProfileDetails;
-import com.usermanagement.usermodel.UserTypeModel;
+import com.usermanagement.usermodel.UserType;
+import com.usermanagement.usermodel.UserTypeRoleType;
 import com.usermanagement.userrepository.RoleRepository;
 import com.usermanagement.userrepository.UserProfileRepository;
-import com.usermanagement.userrepository.UserTypeRoleTypeMapRepository;
 import com.usermanagement.userrepository.UserTypeRepository;
+import com.usermanagement.userrepository.UserTypeRoleTypeMapRepository;
 
 @Service
 public class RoleService {
@@ -31,14 +32,14 @@ public class RoleService {
 	UserProfileRepository userProfileRepository;
 
 	@Autowired
-	UserTypeRoleTypeMapRepository roleTypeMapRepository;
-
+	UserTypeRoleTypeMapRepository roleTypeRepository;
+	
 	public RoleResponseDTO save(CreateRoleRequestDTO request) {
-		RoleMaster roleMaster = new RoleMaster();
+		RoleTypeDetails roleMaster = new RoleTypeDetails();
 		if (!roleRepository.existsByRoleType(request.getRoleType())) {
-			List<UserTypeModel> userTypeModelList = userTypeRepository.findByUserType(request.getRoleType());
+			List<UserType> userTypeModelList = userTypeRepository.findByUserType(request.getRoleType());
 			boolean userRoleExists = false;
-			for (UserTypeModel userTypeModel : userTypeModelList) {
+			for (UserType userTypeModel : userTypeModelList) {
 				if (userTypeModel.getRoleType().equalsIgnoreCase(request.getRoleType())) {
 					userRoleExists = true;
 				}
@@ -48,7 +49,7 @@ public class RoleService {
 				roleMaster.setRoleType(request.getRoleType());
 				roleRepository.save(roleMaster);
 
-				UserTypeModel userTypeModel = new UserTypeModel();
+				UserType userTypeModel = new UserType();
 				userTypeModel.setRoleType(request.getRoleType());
 				userTypeModel.setUserType(request.getUserType());
 				userTypeModel.setUserTypeBelongs(request.getIsCbsUser());
@@ -76,7 +77,7 @@ public class RoleService {
 		if (tempUserProfileDetails != null) {
 			String tempUserType = tempUserProfileDetails.getEntityId();
 
-			List<UserTypeModel> userRoleTypeList = userTypeRepository.findByUserType(tempUserType);
+			List<UserType> userRoleTypeList = userTypeRepository.findByUserType(tempUserType);
 			response.setUserTypeModel(userRoleTypeList);
 			response.setMessage("UserId Found");
 
@@ -92,21 +93,22 @@ public class RoleService {
 		RoleTypeUpdateResponseDTO response = new RoleTypeUpdateResponseDTO();	
 
 		if (tempUserType.equals(request.getUserType())) {
-			List<UserTypeModel> userTypeModelList = userTypeRepository.findByUserType(tempUserType);
-			for (UserTypeModel userTypeModel : userTypeModelList) {
+			List<UserType> userTypeModelList = userTypeRepository.findByUserType(tempUserType);
+
+			for (UserType userTypeModel : userTypeModelList) {
 				if (userTypeModel.getRoleType().equals(request.getExistingRoleType()) && 
 						roleRepository.existsByRoleType(request.getExistingRoleType())) {
-					int tempUserTypeId = userTypeModel.getUserTypeId();
+					
 					userTypeModel.setRoleType(request.getNewRoleType());
-					userTypeModel.setUserTypeId(tempUserTypeId);
+					userTypeModel.setUserTypeId(userTypeModel.getUserTypeId());
 					userTypeRepository.save(userTypeModel);
 					
-					RoleMaster tempRoleMaster = roleRepository.findByRoleType(request.getExistingRoleType());
+					RoleTypeDetails tempRoleMaster = roleRepository.findByRoleType(request.getExistingRoleType());
 					tempRoleMaster.setRoleType(request.getNewRoleType());
 					tempRoleMaster.setRoleId(tempRoleMaster.getRoleId());
 					tempRoleMaster.setRoleDescription(tempRoleMaster.getRoleDescription());
 					roleRepository.save(tempRoleMaster);
-					
+														
 					response.setUserTypeModel(userTypeModel);
 					response.setMessage("SUCCESS - Role Updated!");
 					break;
@@ -119,8 +121,8 @@ public class RoleService {
 		return response;
 	}
 
-	public List<com.usermanagement.usermodel.UserRoleMap> getUserRoleByUserType(String userType) {
-		return roleTypeMapRepository.findByUserType(userType);
+	public List<UserTypeRoleType> getUserRoleByUserType(String userType) {
+		return roleTypeRepository.findByUserType(userType);
 	}
 
 }
