@@ -7,7 +7,7 @@ import lombok.Data;
 
 @Entity(name = "COM_IAM_USER_TYPE_ROLE_TYPE_MAP")
 @Data
-public class UserRoleMap {
+public class UserTypeRoleType {
 	
 	private String roleType;
 	

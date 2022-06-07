@@ -10,10 +10,10 @@ import lombok.Data;
 
 @Entity(name = "COM_IAM_ROLE_MASTER")
 @Data
-public class RoleMaster {
+public class RoleTypeDetails {
 
 	@Id
-	@GeneratedValue(strategy = GenerationType.TABLE)
+	@GeneratedValue(strategy = GenerationType.AUTO)
 	@Column(name = "ROLE_TYPE_ID")
 	private Integer roleId;
 	

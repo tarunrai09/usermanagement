@@ -10,10 +10,10 @@ import lombok.Data;
 
 @Entity(name = "COM_IAM_USER_TYPE")
 @Data
-public class UserTypeModel {
+public class UserType {
 
 	@Id
-	@GeneratedValue(strategy = GenerationType.TABLE)
+	@GeneratedValue(strategy = GenerationType.AUTO)
 	@Column(name = "USER_TYPE_ID")
 	private Integer userTypeId;
 	
