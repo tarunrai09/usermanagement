@@ -27,4 +27,8 @@ public class UserType {
 	@Column(name="ROLE_TYPE")
 	private String roleType;
 	
+	@Column(name = "USER_TYPE_TO_CREATE")
+	private String userTypeToCreate;
+	
+	
 }

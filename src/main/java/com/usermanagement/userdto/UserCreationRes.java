@@ -7,6 +7,7 @@ public class UserCreationRes {
 
 	
 	private String status;
-	private String errorDesc;
-	private String message;
+	private String status_msg;
+	private String status_code;
+	
 }

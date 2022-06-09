@@ -13,12 +13,14 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.usermanagement.userdto.EmailIdResponse;
 import com.usermanagement.userdto.PasswordRequest;
 import com.usermanagement.userdto.ResetPasswordRes;
 import com.usermanagement.userdto.UserCreationRes;
 import com.usermanagement.userdto.UserExistRes;
 import com.usermanagement.userdto.UserLoginResponse;
 import com.usermanagement.userdto.UserProfileDetailsDTO;
+import com.usermanagement.userdto.UserTypeResponse;
 import com.usermanagement.usermodel.UserLoginRequest;
 import com.usermanagement.usermodel.UserTypeRoleType;
 import com.usermanagement.usermodel.UserSystemLogin;
@@ -30,7 +32,6 @@ import com.usermanagement.userservice.UserLoginService;
 @RequestMapping(name = "/sbi/userLogin")
 public class UserLoginController {
 
-	
 	@Autowired
 	UserLoginService loginService;
 
@@ -64,11 +65,17 @@ public class UserLoginController {
 	}
 
 	@PostMapping(value = "/validateEmailId", consumes = "application/json", produces = "application/json")
-	public String validateEmailId(@RequestBody ValidateEmailRequest request) {
+	public EmailIdResponse validateEmailId(@RequestBody ValidateEmailRequest request) {
 
 		return loginService.validateEmailId(request);
 	}
 
+	@PostMapping(value = "/validateMobileNo", consumes = "application/json", produces = "application/json")
+	public EmailIdResponse validateMobileNo(@RequestBody ValidateEmailRequest request) {
+
+		return loginService.validateMobileNoExist(request);
+	}
+	
 	@PostMapping(value = "/validateSystemIP", consumes = "application/json", produces = "application/json")
 	public String validateSystemIP(@RequestBody UserSystemLogin req) {
 
@@ -81,6 +88,12 @@ public class UserLoginController {
 
 		return loginService.saveUserDetails(request);
 
+	}
+
+	@GetMapping(value = "/getUserType/{userType}", consumes = "application/json", produces = "application/json")
+	public UserTypeResponse getuserTypeBySupervisorUser(@PathVariable String userType) {
+
+		return loginService.getuserTypeBySupervisorUser(userType);
 	}
 
 	@PostMapping(value = "/saveExternalUser", consumes = "application/json", produces = "application/json")

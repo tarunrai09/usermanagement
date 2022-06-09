@@ -3,14 +3,14 @@ package com.usermanagement.userdto;
 import lombok.Data;
 
 @Data
-public class UserExistRes {
+public class EmailIdResponse {
 
-	
-	private String isExist;
+	private String status_Code;
 	
 	private String status;
 	
-	private String status_code;
-	
 	private String status_msg;
+	
+    private String isExist;
+    
 }

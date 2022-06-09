@@ -1,5 +1,7 @@
 package com.usermanagement.userrepository;
 
+import java.time.LocalDateTime;
+
 import javax.transaction.Transactional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -19,6 +21,11 @@ public interface UserLoginDetailsRepository extends JpaRepository<UserLoginDetai
 	
 	@Transactional
 	@Modifying
-	@Query(nativeQuery = true,value="Update COM_IAM_USER_LOGIN_DETAILS  set IS_FIRST_LOGIN=:isFirstLogin , password=:password where login_Id=:loginId")
-	void updateByLoginId(String loginId,String isFirstLogin,String password);
+	@Query(nativeQuery = true,value="Update COM_IAM_USER_LOGIN_DETAILS  set IS_FIRST_LOGIN=:isFirstLogin,UPDATE_TIME=:updateTime , password=:password where login_Id=:loginId")
+	void updateByLoginId(String loginId,String isFirstLogin,String password,LocalDateTime updateTime);
+	
+	@Transactional
+	@Modifying
+	@Query(nativeQuery = true,value = "Update COM_IAM_USER_LOGIN_DETAILS set UPDATE_TIME=:updateTime where where login_Id=:loginId")
+	void updateByLoginIdAndUpdateTime(LocalDateTime updateTime, String loginId);
 }

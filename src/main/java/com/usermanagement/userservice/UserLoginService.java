@@ -4,7 +4,9 @@ import java.time.LocalDateTime;
 import java.util.Base64;
 import java.util.List;
 import java.util.Random;
+import java.util.stream.Collector;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.crypto.Cipher;
 import javax.crypto.SecretKey;
@@ -19,23 +21,28 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
 
+import com.usermanagement.userdto.EmailIdResponse;
 import com.usermanagement.userdto.PasswordRequest;
 import com.usermanagement.userdto.ResetPasswordRes;
 import com.usermanagement.userdto.UserCreationRes;
 import com.usermanagement.userdto.UserExistRes;
 import com.usermanagement.userdto.UserLoginResponse;
 import com.usermanagement.userdto.UserProfileDetailsDTO;
+import com.usermanagement.userdto.UserTypeResponse;
 import com.usermanagement.usermodel.UserLoginDetails;
 import com.usermanagement.usermodel.UserLoginRequest;
 import com.usermanagement.usermodel.UserProfileDetails;
 import com.usermanagement.usermodel.UserSystemDetails;
 import com.usermanagement.usermodel.UserSystemLogin;
+import com.usermanagement.usermodel.UserType;
 import com.usermanagement.usermodel.UserTypeRoleType;
 import com.usermanagement.usermodel.ValidateEmailRequest;
 import com.usermanagement.userrepository.UserLoginDetailsRepository;
 import com.usermanagement.userrepository.UserProfileRepository;
 import com.usermanagement.userrepository.UserSystemRepository;
+import com.usermanagement.userrepository.UserTypeRepository;
 import com.usermanagement.userrepository.UserTypeRoleTypeMapRepository;
+import com.usermanagement.utility.UtilityConstants;
 
 @Service
 public class UserLoginService {
@@ -58,6 +65,9 @@ public class UserLoginService {
 	@Autowired
 	UserTypeRoleTypeMapRepository userTypeRoleTypeMapRepository;
 
+	@Autowired
+	UserTypeRepository repository;
+
 	public static Cipher cipher;
 
 	@Value("${spring.mail.username}")
@@ -78,35 +88,46 @@ public class UserLoginService {
 
 		UserLoginDetails res = userLoginDetails.findByLoginId(request.getLoginId());
 
+		UserProfileDetails profileRes=userProfileRepository.findByLoginId(request.getLoginId());
 		if (!ObjectUtils.isEmpty(res)) {
 			if (!res.getIsFirstLogin().equalsIgnoreCase("Y")) {
 				if (request.getPassword().equals(res.getPassword())) {
 
-					response.setStatus("Success");
+					userLoginDetails.updateByLoginIdAndUpdateTime( LocalDateTime.now(),request.getLoginId());
+					response.setStatus(UtilityConstants.SUCCESS);
+					response.setUserType(profileRes.getEntityId());
 					response.setIsFirstLogin("N");
+					response.setUserName(profileRes.getFirstName()+profileRes.getMiddleName()+profileRes.getLastName());
+					response.setStatus_Code(UtilityConstants.HTTPSTATUS_OK);
 					return response;
 				} else {
 
-					response.setErrorDesc("Password entered is incorrect");
-					response.setStatus("Failure");
+					response.setStatus_msg(UtilityConstants.PASSWORD_ENTERED_INCORRECT);
+					response.setStatus(UtilityConstants.FAILURE);
+					response.setStatus_Code(UtilityConstants.HTTPSTATUS_OK);
 					return response;
 				}
 			} else {
 				if (request.getPassword().equals(res.getPassword())) {
+					userLoginDetails.updateByLoginIdAndUpdateTime(LocalDateTime.now(), request.getLoginId());
 					response.setIsFirstLogin("Y");
-					response.setStatus("Success");
+					response.setStatus(UtilityConstants.SUCCESS);
+					response.setUserType(profileRes.getEntityId());
+					response.setStatus_Code(UtilityConstants.HTTPSTATUS_OK);
 					return response;
 				} else {
-					response.setErrorDesc("Password entered is incorrect");
-					response.setStatus("Failure");
+					response.setStatus_msg(UtilityConstants.PASSWORD_ENTERED_INCORRECT);
+					response.setStatus(UtilityConstants.FAILURE);
+					response.setStatus_Code(UtilityConstants.HTTPSTATUS_OK);
 					return response;
 				}
 			}
 
 		} else {
 
-			response.setErrorDesc("UserId does not exist in SCF.");
-			response.setStatus("Failure");
+			response.setStatus_Code(UtilityConstants.USERID_DOESNT_EXIST);
+			response.setStatus(UtilityConstants.FAILURE);
+			response.setStatus_Code(UtilityConstants.HTTPSTATUS_OK);
 			return response;
 		}
 
@@ -115,28 +136,66 @@ public class UserLoginService {
 	public ResetPasswordRes resetPasswordForFirstLogin(PasswordRequest request) {
 
 		ResetPasswordRes res = new ResetPasswordRes();
-		userLoginDetails.updateByLoginId(request.getLoginId(), "N", request.getPassword());
+		userLoginDetails.updateByLoginId(request.getLoginId(), "N", request.getPassword(),LocalDateTime.now());
 
-		res.setStatus("Status");
+		res.setStatus(UtilityConstants.SUCCESS);
+		res.setStatus_Code(UtilityConstants.HTTPSTATUS_OK);
 		return res;
 
 	}
 
-	public String validateEmailId(ValidateEmailRequest req) {
+	public EmailIdResponse validateEmailId(ValidateEmailRequest req) {
 
-		UserProfileDetails res = userProfileRepository.findById(req.getUserId()).get();
+		EmailIdResponse response=new EmailIdResponse();
+		UserProfileDetails res = userProfileRepository.findByEmailId(req.getEmailId());
 		if (!ObjectUtils.isEmpty(res)) {
 			if (req.getEmailId().equalsIgnoreCase(res.getEmailId())) {
 
-				return "Success";
+				response.setStatus(UtilityConstants.SUCCESS);
+				response.setIsExist("Y");
+				response.setStatus_Code(UtilityConstants.HTTPSTATUS_OK);
+				response.setStatus_msg(UtilityConstants.EMAILIDEXIST);
+				return response;
 			} else {
-				return "Failure";
+				response.setIsExist("N");
+				response.setStatus(UtilityConstants.SUCCESS);
+				response.setStatus_Code(UtilityConstants.HTTPSTATUS_OK);
+				response.setStatus_msg(UtilityConstants.EMAILIDDOESNTEXIST);
+				return response;
 			}
 		}
-		return "Failure";
 
+		return response;
 	}
 
+	public EmailIdResponse validateMobileNoExist(ValidateEmailRequest req) {
+		
+
+		EmailIdResponse response=new EmailIdResponse();
+		UserProfileDetails res = userProfileRepository.findByMobileNo(req.getMobileNo());
+		if (!ObjectUtils.isEmpty(res)) {
+			if (req.getEmailId().equalsIgnoreCase(res.getEmailId())) {
+
+				response.setStatus(UtilityConstants.SUCCESS);
+				response.setIsExist("Y");
+				response.setStatus_Code(UtilityConstants.HTTPSTATUS_OK);
+				response.setStatus_msg(UtilityConstants.MOBILENOEXIST);
+				return response;
+			} else {
+				response.setIsExist("N");
+				response.setStatus(UtilityConstants.SUCCESS);
+				response.setStatus_Code(UtilityConstants.HTTPSTATUS_OK);
+				response.setStatus_msg(UtilityConstants.MOBILENODOSENTEXIST);
+				return response;
+			}
+		}
+
+		return response;
+		
+		
+	}
+	
+	
 	public String validateSystemIP(UserSystemLogin req) {
 
 		UserSystemDetails res = userSystemRepository.findById(req.getUserId()).orElse(null);
@@ -217,21 +276,24 @@ public class UserLoginService {
 				userLoginDetails.deleteById(profileRes.getUserId());
 
 				userTypeRoleTypeMapRepository.deleteById(profileRes.getUserId());
-				response1.setStatus("Failure");
-				response1.setErrorDesc(e.getLocalizedMessage());
+				response1.setStatus(UtilityConstants.FAILURE);
+				response1.setStatus_code(UtilityConstants.HTTPSTATUS_OK);
+				response1.setStatus_msg(e.getLocalizedMessage());
 				return response1;
 			}
 			String response = "User Created in SCF " + "\n\nLogin Id " + profileRes.getLoginId() + "\n\nPassword "
 					+ new String(profileRes.getPassword());
 
-			response1.setMessage(response);
-			response1.setStatus("Status");
+			response1.setStatus_msg(response);
+			response1.setStatus_code(UtilityConstants.HTTPSTATUS_OK);
+			response1.setStatus(UtilityConstants.SUCCESS);
 			return response1;
 			/*
 			 * } return "Email Id already exist.";
 			 */} else {
-			response1.setStatus("Failure");
-			response1.setErrorDesc("Email Id  or Mobile No already exist.");
+			response1.setStatus(UtilityConstants.FAILURE);
+			response1.setStatus_msg(UtilityConstants.EMAILID_MOBILE_ALREADY_EXIST);
+			response1.setStatus_code(UtilityConstants.HTTPSTATUS_OK);
 			return response1;
 		}
 
@@ -240,7 +302,6 @@ public class UserLoginService {
 		 * BranchCode
 		 */
 
-		
 	}
 
 	public UserExistRes checkLoginIdExist(String loginId) {
@@ -251,9 +312,11 @@ public class UserLoginService {
 		if (userProfile == null) {
 
 			res.setIsExist("Y");
+			res.setStatus(UtilityConstants.SUCCESS);
 			return res;
 		} else {
 
+			res.setStatus(UtilityConstants.SUCCESS);
 			res.setIsExist("N");
 			return res;
 		}
@@ -331,6 +394,25 @@ public class UserLoginService {
 		byte[] decryptedByte = cipher.doFinal(encryptedTextByte);
 		String decryptedText = new String(decryptedByte);
 		return decryptedText;
+	}
+
+	
+	public UserTypeResponse getuserTypeBySupervisorUser(String userType) {
+
+		UserTypeResponse res1 = new UserTypeResponse();
+		try {
+			List<UserType> res = repository.findByUserType(userType);
+
+			List<String> response = res.stream().map(item -> item.getUserTypeToCreate()).collect(Collectors.toList());
+
+			res1.setStatus(UtilityConstants.SUCCESS);
+			res1.setStatus_Code(UtilityConstants.HTTPSTATUS_OK);
+			res1.setUserTypes(response);
+		} catch (Exception e) {
+
+		}
+
+		return res1;
 	}
 
 	@Async

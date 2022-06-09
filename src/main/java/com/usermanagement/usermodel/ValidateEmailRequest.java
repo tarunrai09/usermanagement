@@ -10,6 +10,6 @@ public class ValidateEmailRequest {
 
 	private Integer userId;
 
-	private Integer mobileNo;
+	private String mobileNo;
 	
 }
