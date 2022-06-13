@@ -20,11 +20,14 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
+import org.springframework.web.client.RestTemplate;
 
 import com.usermanagement.userdto.EmailIdResponse;
+import com.usermanagement.userdto.EmailLoginResponse;
 import com.usermanagement.userdto.PasswordRequest;
 import com.usermanagement.userdto.ResetPasswordRes;
 import com.usermanagement.userdto.UserCreationRes;
+import com.usermanagement.userdto.UserDetailsResponse;
 import com.usermanagement.userdto.UserExistRes;
 import com.usermanagement.userdto.UserLoginResponse;
 import com.usermanagement.userdto.UserProfileDetailsDTO;
@@ -86,25 +89,33 @@ public class UserLoginService {
 
 		UserLoginResponse response = new UserLoginResponse();
 
+		UserDetailsResponse userRes = new UserDetailsResponse();
 		UserLoginDetails res = userLoginDetails.findByLoginId(request.getLoginId());
 
-		UserProfileDetails profileRes=userProfileRepository.findByLoginId(request.getLoginId());
+		UserProfileDetails profileRes = userProfileRepository.findByLoginId(request.getLoginId());
 		if (!ObjectUtils.isEmpty(res)) {
 			if (!res.getIsFirstLogin().equalsIgnoreCase("Y")) {
 				if (request.getPassword().equals(res.getPassword())) {
 
-					userLoginDetails.updateByLoginIdAndUpdateTime( LocalDateTime.now(),request.getLoginId());
+					userLoginDetails.updateByLoginIdAndUpdateTime(LocalDateTime.now(), request.getLoginId());
 					response.setStatus(UtilityConstants.SUCCESS);
-					response.setUserType(profileRes.getEntityId());
+					userRes.setUserType(profileRes.getEntityId());
+					userRes.setFirstName(profileRes.getFirstName());
+					userRes.setMiddleName(profileRes.getMiddleName());
+					userRes.setLastName(profileRes.getLastName());
+					userRes.setUserId(profileRes.getUserId());
+					userRes.setUpdateTime(res.getUpdateTime());
 					response.setIsFirstLogin("N");
-					response.setUserName(profileRes.getFirstName()+profileRes.getMiddleName()+profileRes.getLastName());
-					response.setStatus_Code(UtilityConstants.HTTPSTATUS_OK);
+					userRes.setLoginId(profileRes.getLoginId());
+					userRes.setRoleType(profileRes.getUserRole());
+					response.setData(userRes);
+					response.setStatus_code(UtilityConstants.HTTPSTATUS_OK);
 					return response;
 				} else {
 
 					response.setStatus_msg(UtilityConstants.PASSWORD_ENTERED_INCORRECT);
 					response.setStatus(UtilityConstants.FAILURE);
-					response.setStatus_Code(UtilityConstants.HTTPSTATUS_OK);
+					response.setStatus_code(UtilityConstants.HTTPSTATUS_OK);
 					return response;
 				}
 			} else {
@@ -112,22 +123,31 @@ public class UserLoginService {
 					userLoginDetails.updateByLoginIdAndUpdateTime(LocalDateTime.now(), request.getLoginId());
 					response.setIsFirstLogin("Y");
 					response.setStatus(UtilityConstants.SUCCESS);
-					response.setUserType(profileRes.getEntityId());
-					response.setStatus_Code(UtilityConstants.HTTPSTATUS_OK);
+					userRes.setUserType(profileRes.getEntityId());
+					userRes.setFirstName(profileRes.getFirstName());
+					userRes.setMiddleName(profileRes.getMiddleName());
+					userRes.setLastName(profileRes.getLastName());
+					userRes.setUserId(profileRes.getUserId());
+					userRes.setLoginId(profileRes.getLoginId());
+					userRes.setUserType(profileRes.getEntityId());
+					userRes.setRoleType(profileRes.getUserRole());
+					userRes.setUpdateTime(res.getUpdateTime());
+					response.setData(userRes);
+					response.setStatus_code(UtilityConstants.HTTPSTATUS_OK);
 					return response;
 				} else {
 					response.setStatus_msg(UtilityConstants.PASSWORD_ENTERED_INCORRECT);
 					response.setStatus(UtilityConstants.FAILURE);
-					response.setStatus_Code(UtilityConstants.HTTPSTATUS_OK);
+					response.setStatus_code(UtilityConstants.HTTPSTATUS_OK);
 					return response;
 				}
 			}
 
 		} else {
 
-			response.setStatus_Code(UtilityConstants.USERID_DOESNT_EXIST);
+			response.setStatus_code(UtilityConstants.USERID_DOESNT_EXIST);
 			response.setStatus(UtilityConstants.FAILURE);
-			response.setStatus_Code(UtilityConstants.HTTPSTATUS_OK);
+			response.setStatus_code(UtilityConstants.HTTPSTATUS_OK);
 			return response;
 		}
 
@@ -136,30 +156,30 @@ public class UserLoginService {
 	public ResetPasswordRes resetPasswordForFirstLogin(PasswordRequest request) {
 
 		ResetPasswordRes res = new ResetPasswordRes();
-		userLoginDetails.updateByLoginId(request.getLoginId(), "N", request.getPassword(),LocalDateTime.now());
+		userLoginDetails.updateByLoginId(request.getLoginId(), "N", request.getPassword(), LocalDateTime.now());
 
 		res.setStatus(UtilityConstants.SUCCESS);
-		res.setStatus_Code(UtilityConstants.HTTPSTATUS_OK);
+		res.setStatus_code(UtilityConstants.HTTPSTATUS_OK);
 		return res;
 
 	}
 
 	public EmailIdResponse validateEmailId(ValidateEmailRequest req) {
 
-		EmailIdResponse response=new EmailIdResponse();
+		EmailIdResponse response = new EmailIdResponse();
 		UserProfileDetails res = userProfileRepository.findByEmailId(req.getEmailId());
 		if (!ObjectUtils.isEmpty(res)) {
 			if (req.getEmailId().equalsIgnoreCase(res.getEmailId())) {
 
 				response.setStatus(UtilityConstants.SUCCESS);
 				response.setIsExist("Y");
-				response.setStatus_Code(UtilityConstants.HTTPSTATUS_OK);
+				response.setStatus_code(UtilityConstants.HTTPSTATUS_OK);
 				response.setStatus_msg(UtilityConstants.EMAILIDEXIST);
 				return response;
 			} else {
 				response.setIsExist("N");
 				response.setStatus(UtilityConstants.SUCCESS);
-				response.setStatus_Code(UtilityConstants.HTTPSTATUS_OK);
+				response.setStatus_code(UtilityConstants.HTTPSTATUS_OK);
 				response.setStatus_msg(UtilityConstants.EMAILIDDOESNTEXIST);
 				return response;
 			}
@@ -169,33 +189,30 @@ public class UserLoginService {
 	}
 
 	public EmailIdResponse validateMobileNoExist(ValidateEmailRequest req) {
-		
 
-		EmailIdResponse response=new EmailIdResponse();
+		EmailIdResponse response = new EmailIdResponse();
 		UserProfileDetails res = userProfileRepository.findByMobileNo(req.getMobileNo());
 		if (!ObjectUtils.isEmpty(res)) {
 			if (req.getEmailId().equalsIgnoreCase(res.getEmailId())) {
 
 				response.setStatus(UtilityConstants.SUCCESS);
 				response.setIsExist("Y");
-				response.setStatus_Code(UtilityConstants.HTTPSTATUS_OK);
+				response.setStatus_code(UtilityConstants.HTTPSTATUS_OK);
 				response.setStatus_msg(UtilityConstants.MOBILENOEXIST);
 				return response;
 			} else {
 				response.setIsExist("N");
 				response.setStatus(UtilityConstants.SUCCESS);
-				response.setStatus_Code(UtilityConstants.HTTPSTATUS_OK);
+				response.setStatus_code(UtilityConstants.HTTPSTATUS_OK);
 				response.setStatus_msg(UtilityConstants.MOBILENODOSENTEXIST);
 				return response;
 			}
 		}
 
 		return response;
-		
-		
+
 	}
-	
-	
+
 	public String validateSystemIP(UserSystemLogin req) {
 
 		UserSystemDetails res = userSystemRepository.findById(req.getUserId()).orElse(null);
@@ -328,11 +345,21 @@ public class UserLoginService {
 		// userProfileRepository.updatePassword(inactive, userId);
 	}
 
-	public Integer emailIdValidate(String emailId) {
+	public EmailLoginResponse emailIdValidate(String emailId) {
 
+		EmailLoginResponse response = new EmailLoginResponse();
 		UserProfileDetails res = userProfileRepository.findByEmailId(emailId);
+		if (res != null) {
+			response.setLoginId(res.getLoginId());
+			response.setStatus(UtilityConstants.SUCCESS);
+			response.setStatus_code(UtilityConstants.HTTPSTATUS_OK);
 
-		Integer response = res.getUserId();
+		} else {
+
+			response.setStatus(UtilityConstants.FAILURE);
+			response.setStatus_code(UtilityConstants.HTTPSTATUS_OK);
+			response.setStatus_msg(UtilityConstants.EMAILIDDOESNTEXIST);
+		}
 		return response;
 	}
 
@@ -396,7 +423,6 @@ public class UserLoginService {
 		return decryptedText;
 	}
 
-	
 	public UserTypeResponse getuserTypeBySupervisorUser(String userType) {
 
 		UserTypeResponse res1 = new UserTypeResponse();
@@ -406,8 +432,8 @@ public class UserLoginService {
 			List<String> response = res.stream().map(item -> item.getUserTypeToCreate()).collect(Collectors.toList());
 
 			res1.setStatus(UtilityConstants.SUCCESS);
-			res1.setStatus_Code(UtilityConstants.HTTPSTATUS_OK);
-			res1.setUserTypes(response);
+			res1.setStatus_code(UtilityConstants.HTTPSTATUS_OK);
+			res1.setData(response);
 		} catch (Exception e) {
 
 		}

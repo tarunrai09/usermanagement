@@ -5,7 +5,7 @@ import lombok.Data;
 @Data
 public class EmailIdResponse {
 
-	private String status_Code;
+	private String status_code;
 	
 	private String status;
 	

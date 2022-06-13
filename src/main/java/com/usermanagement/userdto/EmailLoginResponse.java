@@ -1,18 +1,15 @@
 package com.usermanagement.userdto;
 
-import java.util.List;
-
 import lombok.Data;
 
 @Data
-public class UserTypeResponse {
+public class EmailLoginResponse {
 
+	private String loginId;
 	
 	private String status;
 	
 	private String status_code;
 	
 	private String status_msg;
-	
-	private List<String> data;
 }

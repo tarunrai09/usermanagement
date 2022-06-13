@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.usermanagement.userdto.EmailIdResponse;
+import com.usermanagement.userdto.EmailLoginResponse;
 import com.usermanagement.userdto.PasswordRequest;
 import com.usermanagement.userdto.ResetPasswordRes;
 import com.usermanagement.userdto.UserCreationRes;
@@ -110,7 +111,7 @@ public class UserLoginController {
 	}
 
 	@GetMapping(value = "/getUserIdByEnailId/{emailId}", consumes = "application/json", produces = "application/json")
-	public Integer emailIdValidateUserId(@PathVariable @Valid String emailId) {
+	public EmailLoginResponse emailIdValidateUserId(@PathVariable @Valid String emailId) {
 		return loginService.emailIdValidate(emailId);
 	}
 

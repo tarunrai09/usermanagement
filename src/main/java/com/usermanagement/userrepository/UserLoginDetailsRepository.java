@@ -26,6 +26,6 @@ public interface UserLoginDetailsRepository extends JpaRepository<UserLoginDetai
 	
 	@Transactional
 	@Modifying
-	@Query(nativeQuery = true,value = "Update COM_IAM_USER_LOGIN_DETAILS set UPDATE_TIME=:updateTime where where login_Id=:loginId")
+	@Query(nativeQuery = true,value = "Update COM_IAM_USER_LOGIN_DETAILS set UPDATE_TIME=:updateTime where login_Id=:loginId")
 	void updateByLoginIdAndUpdateTime(LocalDateTime updateTime, String loginId);
 }

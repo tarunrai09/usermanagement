@@ -3,9 +3,8 @@ package com.usermanagement.userdto;
 import lombok.Data;
 
 @Data
-public class UpdateRoleRequestDTO {
-	
-	
+public class UpdateRoleRequest {
+		
 	Integer userId;
 	
 	String userType;

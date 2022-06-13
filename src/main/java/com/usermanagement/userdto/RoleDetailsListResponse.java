@@ -1,12 +1,15 @@
 package com.usermanagement.userdto;
 
+import java.util.List;
+
+import com.usermanagement.usermodel.RoleTypeDetails;
+
 import lombok.Data;
 
 @Data
-public class UserLoginResponse {
+public class RoleDetailsListResponse {
 	
-	
-	private String isFirstLogin;
+	private List<RoleTypeDetails> data;
 	
 	private String status;
 	
@@ -14,7 +17,5 @@ public class UserLoginResponse {
 	
 	private String status_code;
 	
-	private UserDetailsResponse data;
-	
-	
+
 }

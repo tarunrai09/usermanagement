@@ -13,7 +13,6 @@ import lombok.Data;
 public class RoleTypeDetails {
 
 	@Id
-	@GeneratedValue(strategy = GenerationType.AUTO)
 	@Column(name = "ROLE_TYPE_ID")
 	private Integer roleId;
 	
